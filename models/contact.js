@@ -1,10 +1,10 @@
 const Joi = require("joi");
 const { Schema, model } = require("mongoose");
-const { hendleMongooseError } = require("../helpers");
+const { handleMongooseError } = require("../helpers");
 
 const phonePattern = /^\(\d{3}\)\s\d{3}-\d{4}$/;
 const emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-const bookSchema = new Schema(
+const contactSchema = new Schema(
   {
     name: {
       type: String,
@@ -24,24 +24,26 @@ const bookSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
+    },
   },
   { versionKey: false, timestamps: true }
 );
-bookSchema.post("save", hendleMongooseError);
+contactSchema.post("save", handleMongooseError);
 
 const addSchema = Joi.object({
-  _id: Joi.string().required(),
   name: Joi.string().required(),
   email: Joi.string().pattern(emailPattern).required(),
   phone: Joi.string().pattern(phonePattern).required(),
   favorite: Joi.boolean(),
-  createdAt: Joi.string().required(),
-  updatedAt: Joi.string().required(),
 });
 
 const updateFavoriteSchema = Joi.object({ favorite: Joi.boolean().required() });
 
-const Contact = model("contact", bookSchema);
+const Contact = model("contact", contactSchema);
 const schemas = {
   addSchema,
   updateFavoriteSchema,
